@@ -11,9 +11,11 @@ import (
 
 var ConsByLevel = [][]Consultant{}
 var RankMap = make(map[string]Rank)
+var RankNames = []string{}
 var TMMap = make(map[string]Consultant)
 var ThisConsultant Consultant
 var ThisRank Rank
+var ForceRank = int64(-1)
 
 func main() {
 
@@ -24,6 +26,14 @@ func main() {
 	
 	if len(os.Args) == 2{
 		file = os.Args[1];
+	}else if len(os.Args) == 3{
+		file = os.Args[1]
+		ForceRank, _ = strconv.ParseInt(os.Args[2], 10, 0)
+		if ForceRank > 13 || ForceRank < 1{
+			log.Fatal("Please provide a valid second argument (1 < x < 13)")
+		}
+		//  = int(i)
+		
 	}else{
 		file = "Export.csv"
 	}
@@ -33,7 +43,11 @@ func main() {
 	
 	// Load the global variables with the Consultant to do the calculations for.
 	ThisConsultant = ConsByLevel[0][0]
-	ThisRank = RankMap[ThisConsultant.PayRank.Title]
+	if ForceRank > 0{
+		ThisRank = RankMap[RankNames[ForceRank - 1]]
+	}else{
+		ThisRank = RankMap[ThisConsultant.PayRank.Title]
+	}
 	
 	log.Print(ThisRank.Title,": ", ThisConsultant.FullName())
 
@@ -44,9 +58,10 @@ func main() {
 	fb := FastStartBonus()
 	
 	// Print the numbers
-	fmt.Printf("Personal Bonus:\t\t$%.2f\nLevel Bonus:\t\t$%.2f\nGeneration Bonus:\t$%.2f\nFast Start Bonus:\t$%.2f\n\nTotal Bonus Check:\t$%.2f\n\nPress Enter to exit.",pb, lb, gb, fb,  pb + lb + gb + fb)
+	fmt.Printf("Personal Bonus:\t\t$%.2f\nLevel Bonus:\t\t$%.2f\nGeneration Bonus:\t$%.2f\nFast Start Bonus:\t$%.2f\n\nTotal Bonus Check:\t$%.2f\n\n",pb, lb, gb, fb,  pb + lb + gb + fb)
 	
 	// Pause before exiting to let the user view the numbers.
+	fmt.Printf("Press Enter to exit.\n\n")
 	var temp string
 	_,_ = fmt.Scanln(&temp)
 }
@@ -66,6 +81,21 @@ func GenerateRanks(){ //RankMap *map[string]Rank
 	RankMap["Lead Executive"] = NewRank("Lead Executive","LE",0.12,0.07,0.05,0.05,0.05,0.02,0.04,0.04,0.04,0.03,0.00,11)
 	RankMap["Premier Executive"] = NewRank("Premier Executive","PE",0.12,0.07,0.05,0.05,0.05,0.02,0.04,0.04,0.04,0.04,0.03,12)
 	RankMap["Elite Executive"] = NewRank("Elite Executive","EE",0.12,0.07,0.05,0.05,0.05,0.02,0.04,0.04,0.04,0.04,0.04,13)
+	
+	RankNames = []string{"Consultant",
+		"Advanced Consultant",
+		"Senior Consultant",
+		"Lead Consultant",
+		"Senior Lead Consultant",
+		"Premier Consultant",
+		"Team Manager",
+		"Senior Team Manager",
+		"Executive",
+		"Senior Executive",
+		"Lead Executive",
+		"Premier Executive",
+		"Elite Executive"}
+	
 }
 
 // Read the CSV (AKA the TAR)
