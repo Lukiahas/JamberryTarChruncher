@@ -30,7 +30,11 @@ func main() {
 		file = os.Args[1]
 		ForceRank, _ = strconv.ParseInt(os.Args[2], 10, 0)
 		if ForceRank > 13 || ForceRank < 1{
+<<<<<<< HEAD
 			log.Fatal("Please provide a valid second argument (1 <= x <= 13) where 1 is Consultant and 13 is Elite Executive")
+=======
+			log.Fatal("Please provide a valid second argument (1 < x < 13)")
+>>>>>>> origin/master
 		}
 		//  = int(i)
 		
@@ -60,10 +64,17 @@ func main() {
 	fb := FastStartBonus()
 	
 	// Print the numbers
+<<<<<<< HEAD
 	fmt.Printf("Personal Bonus:\t\t$%.2f\nLevel Bonus:\t\t$%.2f\nGeneration Bonus:\t$%.2f\nFast Start Bonus:\t$%.2f\n\nTotal Bonus Check:\t$%.2f\n",pb, lb, gb, fb,  pb + lb + gb + fb)
 	
 	// Pause before exiting to let the user view the numbers.
 	fmt.Printf("\nPress Enter to exit.\n")
+=======
+	fmt.Printf("Personal Bonus:\t\t$%.2f\nLevel Bonus:\t\t$%.2f\nGeneration Bonus:\t$%.2f\nFast Start Bonus:\t$%.2f\n\nTotal Bonus Check:\t$%.2f\n\n",pb, lb, gb, fb,  pb + lb + gb + fb)
+	
+	// Pause before exiting to let the user view the numbers.
+	fmt.Printf("Press Enter to exit.\n\n")
+>>>>>>> origin/master
 	var temp string
 	_,_ = fmt.Scanln(&temp)
 }
