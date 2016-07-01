@@ -30,7 +30,7 @@ func main() {
 		file = os.Args[1]
 		ForceRank, _ = strconv.ParseInt(os.Args[2], 10, 0)
 		if ForceRank > 13 || ForceRank < 1{
-			log.Fatal("Please provide a valid second argument (1 < x < 13)")
+			log.Fatal("Please provide a valid second argument (1 <= x <= 13) where 1 is Consultant and 13 is Elite Executive")
 		}
 		//  = int(i)
 		
@@ -49,7 +49,9 @@ func main() {
 		ThisRank = RankMap[ThisConsultant.PayRank.Title]
 	}
 	
-	log.Print(ThisRank.Title,": ", ThisConsultant.FullName())
+	fmt.Print("Full Name:\t\t", ThisConsultant.FullName(), "\n")
+	fmt.Print("Actual Rank:\t\t", ThisConsultant.PayRank.Title, "\n")
+	fmt.Print("Calculated Rank:\t", ThisRank.Title, "\n\n")
 
 	// Do the calculations
 	pb := PersonalBonus()
@@ -58,6 +60,7 @@ func main() {
 	fb := FastStartBonus()
 	
 	// Print the numbers
+
 	fmt.Printf("Personal Bonus:\t\t$%.2f\nLevel Bonus:\t\t$%.2f\nGeneration Bonus:\t$%.2f\nFast Start Bonus:\t$%.2f\n\nTotal Bonus Check:\t$%.2f\n\n",pb, lb, gb, fb,  pb + lb + gb + fb)
 	
 	// Pause before exiting to let the user view the numbers.
