@@ -106,45 +106,42 @@ func ReadCSV(file string){
 	defer csvfile.Close()
 	reader := csv.NewReader(csvfile)
 
-	reader.FieldsPerRecord = 0 // see the Reader struct information below
+	reader.FieldsPerRecord = 0 // see the Reader struct information below Sets "fields per record" to the number of fields in the first record.
 	reader.LazyQuotes = true
-
-	rawCSVdata, err := reader.ReadAll()
-	if err != nil { log.Fatal(err) }
 	
 	var consultant Consultant
-	
-	for _, each := range rawCSVdata {
-		if each[2]== "First Name" { continue }
+	each, err := reader.Read()
+	if len(each) != 29 || each[5] != "Phone" { log.Fatal("Wrong (old) format or wrong csv width") } //Check first row. Should be titles of fields.
+	for each, err = reader.Read() ; err == nil; each, err = reader.Read() {
+		//fmt.Println( each[0]) //Debug
 		consultant.Number = ParseInt(each[0])
 		consultant.DownlineLevel  = ParseInt(each[1])
 		consultant.FirstName = each[2]
 		consultant.LastName = each[3]
 		consultant.Email = each[4]
-		//Empty
-		consultant.Phone = each[6]
-		consultant.StartDate = each[7]
-		consultant.Status = CleanHtmlTags(each[8])
-		consultant.ActiveLegs = ParseInt(each[9])
-		consultant.HighestLegRank = NewRankTitle(each[10])
-		consultant.PayRank = NewRankTitle(each[11])
-		consultant.CareerTitle = NewRankTitle(each[12])
-		consultant.PRV  = ParseInt(each[13])
-		consultant.CV  = ParseInt(each[14])
-		consultant.TRV  = ParseInt(each[15])
-		consultant.DRV  = ParseInt(each[16])
-		consultant.UplineTM = each[17]
-		consultant.Address = each[18]
-		consultant.City = each[19]
-		consultant.State = each[20]
-		consultant.Zip  = each[21]
-		consultant.Country = each[22]
-		consultant.SponsoredThisMonth  = ParseInt(each[23])
-		consultant.NumberInDownline  = ParseInt(each[24])
-		consultant.LastLogin = each[25]
-		consultant.Sponsor = each[26]
-		consultant.SponsorEmail = each[27]
-		consultant.Type = each[28]
+		consultant.Phone = each[5]
+		consultant.StartDate = each[6]
+		consultant.Status = CleanHtmlTags(each[7])
+		consultant.ActiveLegs = ParseInt(each[8])
+		consultant.HighestLegRank = NewRankTitle(each[9])
+		consultant.PayRank = NewRankTitle(each[10])
+		consultant.CareerTitle = NewRankTitle(each[11])
+		consultant.PRV  = ParseFloat(each[12])
+		consultant.CV  = ParseFloat(each[13])
+		consultant.TRV  = ParseFloat(each[14])
+		consultant.DRV  = ParseFloat(each[15])
+		consultant.UplineTM = each[16]
+		consultant.Address = each[17]
+		consultant.City = each[18]
+		consultant.State = each[19]
+		consultant.Zip  = each[20]
+		consultant.Country = each[21]
+		consultant.SponsoredThisMonth  = ParseInt(each[22])
+		consultant.NumberInDownline  = ParseInt(each[23])
+		consultant.LastLogin = each[24]
+		consultant.Sponsor = each[25]
+		consultant.SponsorEmail = each[26]
+		consultant.Type = each[27]
 		
 		// Put it in the 2d array. First D is downline level. Second D is each consultant in that level.
 		if len(ConsByLevel) == consultant.DownlineLevel {
@@ -164,6 +161,7 @@ func ReadCSV(file string){
 			TMMap[consultant.FullName()] = consultant
 		}
 	}
+	//fmt.Println(consultant.Number) //debug
 }
 
 // Calculates Personal Bonus
@@ -199,19 +197,16 @@ func FastStartBonus() float32{
 // Calculates Generation Override Bonus
 func GenerationBonus() float32{
 	bonus := float32(0)
-	// var downlinecount int
 	for _, tm := range TMMap{
-		// downlinecount = 0
 		bonus += ThisRank.GenOverride[tm.Generation] * float32(tm.CV)
 		for i := 0; i < len(ConsByLevel); i++{
 			for _, consult := range ConsByLevel[i]{
 				if !consult.IsManager() && tm.FullName() == consult.UplineTM{
-					// downlinecount++
 					bonus += ThisRank.GenOverride[tm.Generation] * float32(consult.CV)
 				}
 			}
 		}
-		// log.Print("DownlineCount for: ", tm.FullName(), " is: ", downlinecount)
+		// log.Print("DownlineCount for: ", tm.FullName(), " is: ", downlinecount) //Debug
 	}
 	return bonus
 }
@@ -239,8 +234,16 @@ func LevelBonus() float32{
 func ParseInt(input string) int{
 	re := regexp.MustCompile("[^0-9.]")
 	i, err := strconv.ParseInt(re.ReplaceAllString(input, ""), 10, 0)
-	if err != nil { log.Fatal(err) }
+	if err != nil { fmt.Println(i);fmt.Println(input); log.Fatal(err) }
 	return int(i)
+}
+
+// Parse floats from the TAR.
+func ParseFloat(input string) float32{
+	re := regexp.MustCompile("[^0-9.]")
+	i, err := strconv.ParseFloat(re.ReplaceAllString(input, ""), 0)
+	if err != nil { fmt.Println(i);fmt.Println(input); log.Fatal(err) }
+	return float32(i)
 }
 
 // Removes <nobr> tags from TAR String.
@@ -255,7 +258,6 @@ type Consultant struct {
 	FirstName string
 	LastName string
 	Email string
-	//Empty
 	Phone string
 	StartDate string
 	Status string
@@ -263,12 +265,12 @@ type Consultant struct {
 	HighestLegRank RankTitle
 	PayRank RankTitle
 	CareerTitle RankTitle
-	PRV int
-	CV int
-	TRV int
-	DRV int
+	PRV float32
+	CV float32
+	TRV float32
+	DRV float32
 	UplineTM string
-	Generation int
+	Generation int //?
 	Address string
 	City string
 	State string
@@ -280,13 +282,16 @@ type Consultant struct {
 	Sponsor string
 	SponsorEmail string
 	Type string
+	//AttendingConference bool //Last field ignored.
 }
 
+//Check if Consultant is a TM or above. 
 func (con *Consultant) IsManager() bool{
 	if len(RankMap) == 0 { return false }
 	return RankMap[con.CareerTitle.Title].Level >= RankMap["Team Manager"].Level
 }
 
+//Concat Full Name.
 func (con *Consultant) FullName() string{
 	return con.FirstName + " " + con.LastName
 }
