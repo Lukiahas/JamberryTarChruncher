@@ -1,7 +1,9 @@
 # JamberryTarCruncher
-If you work for Jamberry Nails, or have a significant other that does, you probably know what a TAR is. This will take the TAR and tell you your bonus. 
+If you work for Jamberry Nails, or have a significant other that does, you probably know what a Team Activity Report (TAR) is. This will take the TAR and tell you your bonus. 
 
 Simply download your TAR and the JamberryTarCruncher.exe file and have them in the same folder and double click on the JamberryTarCruncher.exe file. Press Enter to exit. It will try to use the newest .csv file in the folder. 
+
+To Download your TAR, go to "Volume & Earnings" and click "Team Activity Report".  Be sure you select the month you want and "Entire Downline" for the "Number of Downline Levels to Display". Then click "Export to Excel/CSV".
 
 If you're more advanced, you can run it from the command line and give it a file name of another csv file as an argument. In addition you can also pass in a rank you want it to calculate to see possible earnings if you advance one more rank or something. 
 
