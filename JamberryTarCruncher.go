@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"io/ioutil"
 	"encoding/csv"
 	"fmt"
 	"strconv"
@@ -35,7 +36,32 @@ func main() {
 		//  = int(i)
 		
 	}else{
-		file = "Export.csv"
+		//file = "Export.csv"
+		
+		// Look for latest .csv file in the current directory. 
+		files, err := ioutil.ReadDir(".")
+		if err != nil { log.Fatal(err) }
+		
+		re := regexp.MustCompile("\\.csv$")
+		
+		var newest os.FileInfo
+		
+		
+		for _, file := range files{
+			if re.MatchString(file.Name()){
+				if newest == nil || file.ModTime().After(newest.ModTime()){
+					newest = file
+				}
+			}
+		}
+		
+		if newest == nil{
+			log.Fatal("No TAR file found. Please put your latest TAR .csv file in the folder you are executing from.")
+		}else{
+			file = newest.Name()
+			fmt.Print("File being read:\t", file, "\n")
+		}
+		
 	}
 	
 	// Read CSV File (AKA the TAR)
