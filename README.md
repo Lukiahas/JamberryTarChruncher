@@ -15,8 +15,8 @@ Command line usage: JamberryTarCruncher.exe ({file_name} ({rank}))
 	
 example: JamberryTarCruncher.exe ExportSept.csv 12
 
-#### Discaimer:
-The amount that this program returns is an estimateion. Your actual payout will differ. 
+#### Disclaimer:
+The amount that this program returns is an estimation. Your actual payout will differ. 
 The Fast Start Bonus (FSB) seems to be the biggest delta. When trying to cacluate the correct FSB, the program needs to know who is in their Fast Start period and the TAR does not always list that value correctly. ("Type" Column [AB] in the TAR)
 
 ---
